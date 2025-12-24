@@ -1,0 +1,205 @@
+{% extends 'forecaster/base.html' %}
+
+{% block title %}{{ scenario.name }} - Details{% endblock %}
+
+{% block extra_css %}
+<style>
+    .projection-chart {
+        height: 400px;
+        margin: 2rem 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1><i class="bi bi-graph-up"></i> {{ scenario.name }}</h1>
+            <div>
+                <a href="{% url 'forecaster:scenario_update' scenario.pk %}" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil"></i> Edit
+                </a>
+                <a href="{% url 'forecaster:scenario_delete' scenario.pk %}" class="btn btn-outline-danger">
+                    <i class="bi bi-trash"></i> Delete
+                </a>
+                <a href="{% url 'forecaster:scenario_list' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+        <span class="badge bg-secondary">{{ scenario.get_scenario_type_display }}</span>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="stat-label">Projected Value</div>
+            <div class="stat-value text-success">${{ scenario.projected_value|floatformat:2 }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="stat-label">Total Contributions</div>
+            <div class="stat-value text-primary">${{ scenario.total_contributions|floatformat:2 }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="stat-label">Total Gains</div>
+            <div class="stat-value text-warning">${{ scenario.total_gains|floatformat:2 }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-bar-chart"></i> Growth Projection</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="projectionChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-info-circle"></i> Scenario Parameters</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <td class="text-muted">Initial Investment:</td>
+                        <td class="text-end fw-bold">${{ scenario.initial_investment|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Monthly Contribution:</td>
+                        <td class="text-end fw-bold">${{ scenario.monthly_contribution|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Annual Return:</td>
+                        <td class="text-end fw-bold">{{ scenario.annual_return_rate }}%</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Time Horizon:</td>
+                        <td class="text-end fw-bold">{{ scenario.investment_period_years }} years</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Inflation Rate:</td>
+                        <td class="text-end fw-bold">{{ scenario.inflation_rate }}%</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Volatility:</td>
+                        <td class="text-end fw-bold">{{ scenario.volatility }}%</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5><i class="bi bi-calculator"></i> ROI Metrics</h5>
+            </div>
+            <div class="card-body">
+                {% widthratio scenario.total_gains scenario.total_contributions 100 as roi %}
+                <div class="mb-3">
+                    <small class="text-muted">Return on Investment:</small>
+                    <h4 class="text-success mb-0">{{ roi|floatformat:1 }}%</h4>
+                </div>
+                <div>
+                    <small class="text-muted">Effective Annual Rate:</small>
+                    <h5 class="mb-0">{{ scenario.annual_return_rate }}%</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-table"></i> Year-by-Year Projection</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th class="text-end">Portfolio Value</th>
+                                <th class="text-end">Contributions</th>
+                                <th class="text-end">Gains</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for snapshot in snapshots %}
+                            <tr>
+                                <td>{{ snapshot.year }}</td>
+                                <td class="text-end">${{ snapshot.value|floatformat:2 }}</td>
+                                <td class="text-end">${{ snapshot.contributions_to_date|floatformat:2 }}</td>
+                                <td class="text-end text-success">${{ snapshot.gains_to_date|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const ctx = document.getElementById('projectionChart');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [0, {% for snapshot in snapshots %}{{ snapshot.year }},{% endfor %}],
+        datasets: [{
+            label: 'Portfolio Value',
+            data: [{{ scenario.initial_investment }}, {% for snapshot in snapshots %}{{ snapshot.value }},{% endfor %}],
+            borderColor: '#27ae60',
+            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+            fill: true,
+            tension: 0.4
+        }, {
+            label: 'Contributions',
+            data: [{{ scenario.initial_investment }}, {% for snapshot in snapshots %}{{ snapshot.contributions_to_date }},{% endfor %}],
+            borderColor: '#3498db',
+            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Investment Growth Over Time'
+            },
+            legend: {
+                position: 'bottom'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value.toLocaleString();
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

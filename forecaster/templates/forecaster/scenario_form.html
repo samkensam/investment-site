@@ -1,0 +1,104 @@
+{% extends 'forecaster/base.html' %}
+
+{% block title %}{{ action }} Scenario{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-pencil-square"></i> {{ action }} Scenario</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="text-danger small">{{ form.name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.scenario_type.id_for_label }}" class="form-label">{{ form.scenario_type.label }}</label>
+                            {{ form.scenario_type }}
+                            {% if form.scenario_type.errors %}
+                                <div class="text-danger small">{{ form.scenario_type.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.initial_investment.id_for_label }}" class="form-label">{{ form.initial_investment.label }}</label>
+                            {{ form.initial_investment }}
+                            {% if form.initial_investment.errors %}
+                                <div class="text-danger small">{{ form.initial_investment.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.monthly_contribution.id_for_label }}" class="form-label">{{ form.monthly_contribution.label }}</label>
+                            {{ form.monthly_contribution }}
+                            {% if form.monthly_contribution.errors %}
+                                <div class="text-danger small">{{ form.monthly_contribution.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.annual_return_rate.id_for_label }}" class="form-label">{{ form.annual_return_rate.label }}</label>
+                            {{ form.annual_return_rate }}
+                            <small class="form-text text-muted">Average market return is ~7-10% annually</small>
+                            {% if form.annual_return_rate.errors %}
+                                <div class="text-danger small">{{ form.annual_return_rate.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.investment_period_years.id_for_label }}" class="form-label">{{ form.investment_period_years.label }}</label>
+                            {{ form.investment_period_years }}
+                            {% if form.investment_period_years.errors %}
+                                <div class="text-danger small">{{ form.investment_period_years.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.inflation_rate.id_for_label }}" class="form-label">{{ form.inflation_rate.label }}</label>
+                            {{ form.inflation_rate }}
+                            <small class="form-text text-muted">Historical average ~2-3%</small>
+                            {% if form.inflation_rate.errors %}
+                                <div class="text-danger small">{{ form.inflation_rate.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.volatility.id_for_label }}" class="form-label">{{ form.volatility.label }}</label>
+                            {{ form.volatility }}
+                            <small class="form-text text-muted">Standard deviation of returns</small>
+                            {% if form.volatility.errors %}
+                                <div class="text-danger small">{{ form.volatility.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> {{ action }} Scenario
+                        </button>
+                        <a href="{% url 'forecaster:scenario_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

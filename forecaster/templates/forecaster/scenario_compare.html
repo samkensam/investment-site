@@ -1,0 +1,213 @@
+{% extends 'forecaster/base.html' %}
+
+{% block title %}Compare Scenarios{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1><i class="bi bi-bar-chart-steps"></i> Compare Investment Scenarios</h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="row g-3 align-items-end">
+                    <div class="col-md-10">
+                        <label class="form-label">Select scenarios to compare:</label>
+                        <select name="scenarios" class="form-select" multiple size="5">
+                            {% for scenario in all_scenarios %}
+                            <option value="{{ scenario.id }}" 
+                                {% if scenario in selected_scenarios %}selected{% endif %}>
+                                {{ scenario.name }} ({{ scenario.get_scenario_type_display }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple scenarios</small>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-funnel"></i> Compare
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if selected_scenarios %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-graph-up"></i> Comparison Chart</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-table"></i> Side-by-Side Comparison</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Metric</th>
+                                {% for scenario in selected_scenarios %}
+                                <th class="text-center">{{ scenario.name }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="fw-bold">Scenario Type</td>
+                                {% for scenario in selected_scenarios %}
+                                <td class="text-center">
+                                    <span class="badge bg-secondary">{{ scenario.get_scenario_type_display }}</span>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Initial Investment</td>
+                                {% for scenario in selected_scenarios %}
+                                <td class="text-end">${{ scenario.initial_investment|floatformat:2 }}</td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Monthly Contribution</td>
+                                {% for scenario in selected_scenarios %}
+                                <td class="text-end">${{ scenario.monthly_contribution|floatformat:2 }}</td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Annual Return Rate</td>
+                                {% for scenario in selected_scenarios %}
+                                <td class="text-end">{{ scenario.annual_return_rate }}%</td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Investment Period</td>
+                                {% for scenario in selected_scenarios %}
+                                <td class="text-end">{{ scenario.investment_period_years }} years</td>
+                                {% endfor %}
+                            </tr>
+                            <tr class="table-success">
+                                <td class="fw-bold">Projected Value</td>
+                                {% for scenario in selected_scenarios %}
+                                <td class="text-end fw-bold">${{ scenario.projected_value|floatformat:2 }}</td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Total Contributions</td>
+                                {% for scenario in selected_scenarios %}
+                                <td class="text-end">${{ scenario.total_contributions|floatformat:2 }}</td>
+                                {% endfor %}
+                            </tr>
+                            <tr class="table-warning">
+                                <td class="fw-bold">Total Gains</td>
+                                {% for scenario in selected_scenarios %}
+                                <td class="text-end fw-bold">${{ scenario.total_gains|floatformat:2 }}</td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">ROI</td>
+                                {% for scenario in selected_scenarios %}
+                                <td class="text-end">
+                                    {% widthratio scenario.total_gains scenario.total_contributions 100 as roi %}
+                                    {{ roi|floatformat:1 }}%
+                                </td>
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle"></i> Select scenarios above to compare them.
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if selected_scenarios %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const colors = [
+    { border: '#3498db', bg: 'rgba(52, 152, 219, 0.2)' },
+    { border: '#27ae60', bg: 'rgba(39, 174, 96, 0.2)' },
+    { border: '#e74c3c', bg: 'rgba(231, 76, 60, 0.2)' },
+    { border: '#f39c12', bg: 'rgba(243, 156, 18, 0.2)' },
+    { border: '#9b59b6', bg: 'rgba(155, 89, 182, 0.2)' }
+];
+
+const ctx = document.getElementById('comparisonChart');
+const datasets = [];
+
+{% for scenario in selected_scenarios %}
+datasets.push({
+    label: '{{ scenario.name }}',
+    data: [
+        {{ scenario.initial_investment }},
+        {% for snapshot in scenario.snapshots.all %}
+        {{ snapshot.value }},
+        {% endfor %}
+    ],
+    borderColor: colors[{{ forloop.counter0 }} % colors.length].border,
+    backgroundColor: colors[{{ forloop.counter0 }} % colors.length].bg,
+    fill: false,
+    tension: 0.4
+});
+{% endfor %}
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [0, {% for i in "x"|rjust:selected_scenarios.0.investment_period_years %}{{ forloop.counter }},{% endfor %}],
+        datasets: datasets
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Scenario Comparison'
+            },
+            legend: {
+                position: 'bottom'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value.toLocaleString();
+                    }
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Years'
+                }
+            }
+        }
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

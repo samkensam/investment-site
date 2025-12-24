@@ -1,0 +1,82 @@
+{% extends 'forecaster/base.html' %}
+
+{% block title %}My Scenarios{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-list-ul"></i> My Investment Scenarios</h1>
+            <a href="{% url 'forecaster:scenario_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New Scenario
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if scenarios %}
+<div class="row">
+    {% for scenario in scenarios %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card scenario-card">
+            <div class="card-body">
+                <h5 class="card-title">{{ scenario.name }}</h5>
+                <span class="badge bg-secondary mb-3">{{ scenario.get_scenario_type_display }}</span>
+                
+                <div class="mb-2">
+                    <small class="text-muted">Initial Investment:</small>
+                    <div class="fw-bold">${{ scenario.initial_investment|floatformat:2 }}</div>
+                </div>
+                
+                <div class="mb-2">
+                    <small class="text-muted">Monthly Contribution:</small>
+                    <div class="fw-bold">${{ scenario.monthly_contribution|floatformat:2 }}</div>
+                </div>
+                
+                <div class="mb-2">
+                    <small class="text-muted">Expected Return:</small>
+                    <div class="fw-bold">{{ scenario.annual_return_rate }}%</div>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">Time Horizon:</small>
+                    <div class="fw-bold">{{ scenario.investment_period_years }} years</div>
+                </div>
+                
+                {% if scenario.projected_value %}
+                <div class="alert alert-success mb-3">
+                    <small>Projected Value:</small>
+                    <h4 class="mb-0">${{ scenario.projected_value|floatformat:2 }}</h4>
+                </div>
+                {% endif %}
+                
+                <div class="d-grid gap-2">
+                    <a href="{% url 'forecaster:scenario_detail' scenario.pk %}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-eye"></i> View Details
+                    </a>
+                    <a href="{% url 'forecaster:scenario_update' scenario.pk %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+                </div>
+                
+                <div class="mt-2 text-muted small">
+                    <i class="bi bi-clock"></i> Created {{ scenario.created_at|date:"M d, Y" }}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-inbox" style="font-size: 4rem; color: #dee2e6;"></i>
+        <h3 class="mt-3">No Scenarios Yet</h3>
+        <p class="text-muted">Create your first investment scenario to start forecasting!</p>
+        <a href="{% url 'forecaster:scenario_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Create Your First Scenario
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

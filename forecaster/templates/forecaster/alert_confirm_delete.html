@@ -1,0 +1,30 @@
+{% extends 'forecaster/base.html' %}
+
+{% block title %}Delete Alert{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h4><i class="bi bi-exclamation-triangle"></i> Confirm Deletion</h4>
+            </div>
+            <div class="card-body">
+                <p class="lead">Are you sure you want to delete this alert?</p>
+                <h5 class="text-center my-4">"{{ alert.name }}"</h5>
+                <p class="text-muted">This action cannot be undone. All related notifications will remain but won't be linked to this alert.</p>
+                
+                <form method="post" class="d-flex gap-2 justify-content-center mt-4">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Yes, Delete
+                    </button>
+                    <a href="{% url 'forecaster:alert_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

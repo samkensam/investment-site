@@ -1,0 +1,113 @@
+{% extends 'forecaster/base.html' %}
+
+{% block title %}{{ action }} Alert{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-bell"></i> {{ action }} Alert</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="text-danger small">{{ form.name.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.alert_type.id_for_label }}" class="form-label">{{ form.alert_type.label }}</label>
+                            {{ form.alert_type }}
+                            {% if form.alert_type.errors %}
+                                <div class="text-danger small">{{ form.alert_type.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.scenario.id_for_label }}" class="form-label">{{ form.scenario.label }}</label>
+                            {{ form.scenario }}
+                            <small class="form-text text-muted">Leave empty to monitor all scenarios</small>
+                            {% if form.scenario.errors %}
+                                <div class="text-danger small">{{ form.scenario.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.target_value.id_for_label }}" class="form-label">{{ form.target_value.label }}</label>
+                            {{ form.target_value }}
+                            <small class="form-text text-muted">For milestone/threshold alerts</small>
+                            {% if form.target_value.errors %}
+                                <div class="text-danger small">{{ form.target_value.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.target_roi.id_for_label }}" class="form-label">{{ form.target_roi.label }}</label>
+                            {{ form.target_roi }}
+                            <small class="form-text text-muted">For ROI target alerts</small>
+                            {% if form.target_roi.errors %}
+                                <div class="text-danger small">{{ form.target_roi.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.reminder_frequency_days.id_for_label }}" class="form-label">{{ form.reminder_frequency_days.label }}</label>
+                            {{ form.reminder_frequency_days }}
+                            <small class="form-text text-muted">For periodic reminders</small>
+                            {% if form.reminder_frequency_days.errors %}
+                                <div class="text-danger small">{{ form.reminder_frequency_days.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.message.id_for_label }}" class="form-label">{{ form.message.label }}</label>
+                        {{ form.message }}
+                        {% if form.message.errors %}
+                            <div class="text-danger small">{{ form.message.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        {{ form.send_email }}
+                        <label class="form-check-label" for="{{ form.send_email.id_for_label }}">
+                            {{ form.send_email.label }}
+                        </label>
+                        {% if form.send_email.errors %}
+                            <div class="text-danger small">{{ form.send_email.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> <strong>Alert Type Guide:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li><strong>Milestone:</strong> Set target_value for portfolio milestones</li>
+                            <li><strong>ROI Target:</strong> Set target_roi for return percentage goals</li>
+                            <li><strong>Threshold:</strong> Set target_value for value thresholds</li>
+                            <li><strong>Reminder:</strong> Set reminder_frequency_days for periodic checks</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> {{ action }} Alert
+                        </button>
+                        <a href="{% url 'forecaster:alert_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
