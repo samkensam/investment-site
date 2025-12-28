@@ -18,7 +18,6 @@ ENV/
 # Django specific
 *.log
 *.pot
-*.pyc
 db.sqlite3
 db.sqlite3-journal
 /media
