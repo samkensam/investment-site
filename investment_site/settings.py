@@ -22,7 +22,8 @@ except ImportError:
         value = os.environ.get(key, default)
         if cast and value is not None:
             if cast == bool:
-                return value.lower() in ('true', '1', 'yes')
+                # Handle various boolean representations
+                return str(value).lower() in ('true', '1', 'yes', 'on')
             return cast(value)
         return value
     
@@ -31,9 +32,10 @@ except ImportError:
             self.cast = cast
         
         def __call__(self, value):
-            if not value:
+            # Handle empty or whitespace-only strings
+            if not value or not str(value).strip():
                 return []
-            items = [item.strip() for item in value.split(',')]
+            items = [item.strip() for item in str(value).split(',')]
             if self.cast:
                 return [self.cast(item) for item in items]
             return items
