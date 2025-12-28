@@ -1,6 +1,92 @@
 # Investment Forecaster 📈
 
+> **🎯 Django Template Repository**
+> 
+> This is a ready-to-use template for building investment forecasting applications. Use it as a starting point for your own investment analysis and portfolio projection projects.
+
 A Django-based web application for investment scenario analysis, portfolio projections, and automated alerts. Plan your financial future with interactive charts, ROI calculations, and smart notifications.
+
+---
+
+## 🚀 Using This Template
+
+### Option 1: Use as GitHub Template
+1. Click the "Use this template" button at the top of this repository
+2. Create your new repository
+3. Clone your new repository and follow the setup instructions below
+
+### Option 2: Clone Directly
+```bash
+git clone https://github.com/samkensam/investment-site.git
+cd investment-site
+```
+
+---
+
+## 📋 Setup Instructions
+
+Follow these steps to get the application running on your local machine:
+
+### 1. Create Virtual Environment
+```bash
+# Windows
+python -m venv venv
+.\venv\Scripts\activate
+
+# Linux/Mac
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 2. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Configure Environment Variables
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit .env and configure your settings:
+# - Generate a new SECRET_KEY for production
+# - Set DEBUG=False for production
+# - Configure ALLOWED_HOSTS for your domain
+# - Set up database credentials if using PostgreSQL
+```
+
+**Generate a new SECRET_KEY:**
+```bash
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
+### 4. Run Database Migrations
+```bash
+python manage.py migrate
+```
+
+### 5. Create Superuser Account
+```bash
+# Interactive method
+python manage.py createsuperuser
+
+# Or use the provided script (creates admin/admin123)
+python create_superuser.py
+```
+
+### 6. Run Development Server
+```bash
+python manage.py runserver
+```
+
+### 7. Access the Application
+- **Main Application**: http://127.0.0.1:8000/
+- **Admin Panel**: http://127.0.0.1:8000/admin/
+- **Default Credentials** (if using create_superuser.py):
+  - Username: `admin`
+  - Password: `admin123`
+
+---
 
 ## ✨ Features
 
@@ -30,62 +116,6 @@ A Django-based web application for investment scenario analysis, portfolio proje
 - Mobile-friendly navigation
 - Real-time notification system
 - Side-by-side scenario comparisons
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.9+
-- pip (Python package manager)
-- Git
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/samkensam/investment-site.git
-   cd investment_site
-   ```
-
-2. **Create virtual environment**
-   ```bash
-   # Windows
-   python -m venv venv
-   .\venv\Scripts\activate
-
-   # Linux/Mac
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install Django==4.2.27
-   ```
-
-4. **Run migrations**
-   ```bash
-   python manage.py migrate
-   ```
-
-5. **Create superuser**
-   ```bash
-   python manage.py createsuperuser
-   # Or use the provided script:
-   python create_superuser.py
-   ```
-
-6. **Start development server**
-   ```bash
-   python manage.py runserver
-   ```
-
-7. **Access the application**
-   - Main App: http://127.0.0.1:8000/
-   - Admin Panel: http://127.0.0.1:8000/admin/
-
-### Default Credentials
-- **Username**: admin
-- **Password**: admin123
 
 ## 📖 Usage Guide
 
@@ -144,65 +174,89 @@ A Django-based web application for investment scenario analysis, portfolio proje
 ## 📁 Project Structure
 
 ```
-investment_site/
+investment-site/
 ├── forecaster/              # Main Django app
 │   ├── migrations/          # Database migrations
 │   ├── templates/           # HTML templates
 │   │   ├── forecaster/      # App templates
 │   │   └── registration/    # Auth templates
-│   ├── models.py            # Data models
+│   ├── models.py            # Data models (Scenario, Alert, Notification)
 │   ├── views.py             # View logic
 │   ├── forms.py             # Django forms
 │   ├── urls.py              # URL routing
 │   └── admin.py             # Admin configuration
 ├── investment_site/         # Project settings
-│   ├── settings.py          # Django settings
+│   ├── settings.py          # Django settings (with env var support)
 │   ├── urls.py              # Root URL config
 │   └── wsgi.py              # WSGI config
-├── manage.py                # Django CLI
+├── .env.example             # Environment variables template
 ├── .gitignore               # Git ignore rules
+├── requirements.txt         # Python dependencies
+├── create_superuser.py      # Helper script for creating admin user
+├── manage.py                # Django CLI
 └── README.md                # This file
 ```
 
 ## 🔧 Configuration
 
-### Settings (investment_site/settings.py)
+### Environment Variables (.env file)
 
-**Debug Mode** (Development only):
-```python
-DEBUG = True
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+The application uses environment variables for configuration. Copy `.env.example` to `.env` and customize:
+
+**Development Settings** (default in .env.example):
+```ini
+SECRET_KEY=your-secret-key-here-change-this-in-production
+DEBUG=True
+ALLOWED_HOSTS=127.0.0.1,localhost
+DATABASE_ENGINE=django.db.backends.sqlite3
+DATABASE_NAME=db.sqlite3
 ```
 
 **Production Settings**:
-```python
-DEBUG = False
-ALLOWED_HOSTS = ['yourdomain.com']
-SECRET_KEY = os.environ.get('SECRET_KEY')
+```ini
+SECRET_KEY=<generate-new-secret-key>
+DEBUG=False
+ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
+
+# PostgreSQL Database
+DATABASE_ENGINE=django.db.backends.postgresql
+DATABASE_NAME=your_db_name
+DATABASE_USER=your_db_user
+DATABASE_PASSWORD=your_db_password
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
 ```
 
-**Database Configuration**:
-```python
-# SQLite (default)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+> **💡 Tip**: Generate a secure SECRET_KEY with:
+> ```bash
+> python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+> ```
 
-# PostgreSQL (production)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'your_db_name',
-        'USER': 'your_db_user',
-        'PASSWORD': 'your_db_password',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
+### Database Configuration
+
+The project supports both SQLite (for development) and PostgreSQL (for production).
+
+**SQLite** (default - no additional setup required):
+```ini
+DATABASE_ENGINE=django.db.backends.sqlite3
+DATABASE_NAME=db.sqlite3
 ```
+
+**PostgreSQL** (recommended for production):
+1. Install PostgreSQL and create a database
+2. Update `.env` file with PostgreSQL credentials:
+```ini
+DATABASE_ENGINE=django.db.backends.postgresql
+DATABASE_NAME=your_database_name
+DATABASE_USER=your_database_user
+DATABASE_PASSWORD=your_database_password
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+```
+3. Install PostgreSQL driver: `pip install psycopg2-binary` (uncomment in requirements.txt)
+4. Run migrations: `python manage.py migrate`
+
+---
 
 ## 📊 Mathematical Models
 
@@ -227,6 +281,15 @@ ROI = (Total Gains / Total Contributions) × 100%
 
 ## 🚢 Deployment
 
+### Prerequisites for Production
+
+1. **Uncomment production dependencies in `requirements.txt`**:
+   - `psycopg2-binary` (PostgreSQL driver)
+   - `gunicorn` (WSGI server)
+   - `whitenoise` (static files)
+
+2. **Set up environment variables** with production values
+
 ### Deploy to Heroku
 
 1. **Install Heroku CLI and login**
@@ -246,24 +309,17 @@ ROI = (Total Gains / Total Contributions) × 100%
 
 4. **Set environment variables**
    ```bash
-   heroku config:set SECRET_KEY='your-secret-key'
+   heroku config:set SECRET_KEY='<your-generated-secret-key>'
    heroku config:set DEBUG=False
+   heroku config:set ALLOWED_HOSTS='your-app-name.herokuapp.com'
    ```
 
-5. **Create Procfile**
+5. **Create Procfile** (if not exists)
    ```
    web: gunicorn investment_site.wsgi
    ```
 
-6. **Add requirements.txt**
-   ```
-   Django==4.2.27
-   gunicorn
-   psycopg2-binary
-   whitenoise
-   ```
-
-7. **Deploy**
+6. **Deploy**
    ```bash
    git push heroku main
    heroku run python manage.py migrate
@@ -271,28 +327,51 @@ ROI = (Total Gains / Total Contributions) × 100%
    ```
 
 ### Deploy to Railway/Render
-Follow similar steps with platform-specific configurations.
+
+Similar process:
+1. Connect your GitHub repository
+2. Set environment variables via platform dashboard
+3. Configure build and start commands
+4. Deploy automatically on git push
+
+---
 
 ## 🔒 Security Notes
 
 ⚠️ **Important for Production**:
-- Change `SECRET_KEY` in settings.py
-- Set `DEBUG = False`
-- Configure `ALLOWED_HOSTS`
-- Use environment variables for sensitive data
-- Enable HTTPS
-- Use strong passwords
-- Regular security updates
+
+1. **Never commit sensitive data** - The `.env` file is in `.gitignore` to prevent accidental commits
+2. **Generate a unique SECRET_KEY** - Don't use the default one in production
+3. **Set DEBUG=False** - Debug mode exposes sensitive information
+4. **Configure ALLOWED_HOSTS** - Restrict which domains can serve your app
+5. **Use HTTPS** - Enable SSL/TLS for secure communication
+6. **Use strong passwords** - Especially for admin accounts
+7. **Keep dependencies updated** - Regularly update Django and other packages for security patches
+8. **Review `.env.example`** - Make sure it doesn't contain real secrets
+
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+This is a template repository, but contributions are welcome! 
+
+### How to Contribute
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+### Contribution Guidelines
+
+- Follow Django best practices
+- Maintain backwards compatibility when possible
+- Update documentation for new features
+- Test your changes thoroughly
+- Keep the template nature of the repository in mind
+
+---
 
 ## 📝 Future Enhancements
 
@@ -307,9 +386,13 @@ Contributions are welcome! Please follow these steps:
 - [ ] Multi-currency support
 - [ ] Mobile app (React Native/Flutter)
 
+---
+
 ## 📄 License
 
 This project is open source and available under the [MIT License](LICENSE).
+
+---
 
 ## 👤 Author
 
@@ -317,12 +400,16 @@ This project is open source and available under the [MIT License](LICENSE).
 - GitHub: [@samkensam](https://github.com/samkensam)
 - Repository: [investment-site](https://github.com/samkensam/investment-site)
 
+---
+
 ## 🙏 Acknowledgments
 
 - Django Framework
-- Bootstrap Team
+- Bootstrap Team  
 - Chart.js Contributors
 - Django Community
+
+---
 
 ## 📞 Support
 
@@ -333,6 +420,10 @@ For issues, questions, or suggestions:
 
 ---
 
+**🎯 This is a Template Repository**
+
+Feel free to use this as a starting point for your own investment forecasting applications. Customize it, extend it, and make it your own!
+
 **Built with ❤️ using Django**
 
-*Last Updated: December 24, 2025*
+*Last Updated: December 2024*
