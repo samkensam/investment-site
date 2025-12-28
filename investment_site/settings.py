@@ -10,7 +10,33 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+# Try to import decouple, but fall back to os.environ if not available
+try:
+    from decouple import config, Csv
+except ImportError:
+    # Fallback to os.environ if python-decouple is not installed
+    def config(key, default=None, cast=None):
+        value = os.environ.get(key, default)
+        if cast and value is not None:
+            if cast == bool:
+                return value.lower() in ('true', '1', 'yes')
+            return cast(value)
+        return value
+    
+    class Csv:
+        def __init__(self, cast=None):
+            self.cast = cast
+        
+        def __call__(self, value):
+            if not value:
+                return []
+            items = [item.strip() for item in value.split(',')]
+            if self.cast:
+                return [self.cast(item) for item in items]
+            return items
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +46,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-sf0#tukz8)r=r^-asje_m)(&bhsb0d!@c=0pa-#s_)&3!o30yg'
+# In production, this should be set via environment variable or .env file
+# Generate a new key with: python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
+SECRET_KEY = config(
+    'SECRET_KEY',
+    default='django-insecure-sf0#tukz8)r=r^-asje_m)(&bhsb0d!@c=0pa-#s_)&3!o30yg'
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Set DEBUG=False in production via environment variable or .env file
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+# Configure allowed hosts via environment variable (comma-separated)
+# Example: ALLOWED_HOSTS=localhost,127.0.0.1,yourdomain.com
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=Csv())
 
 
 # Application definition
@@ -73,11 +107,23 @@ WSGI_APPLICATION = 'investment_site.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+# 
+# By default, uses SQLite for development. For production, configure via environment variables:
+# DATABASE_ENGINE=django.db.backends.postgresql
+# DATABASE_NAME=your_db_name
+# DATABASE_USER=your_db_user
+# DATABASE_PASSWORD=your_db_password
+# DATABASE_HOST=localhost
+# DATABASE_PORT=5432
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': config('DATABASE_ENGINE', default='django.db.backends.sqlite3'),
+        'NAME': config('DATABASE_NAME', default=str(BASE_DIR / 'db.sqlite3')),
+        'USER': config('DATABASE_USER', default=''),
+        'PASSWORD': config('DATABASE_PASSWORD', default=''),
+        'HOST': config('DATABASE_HOST', default=''),
+        'PORT': config('DATABASE_PORT', default=''),
     }
 }
 
