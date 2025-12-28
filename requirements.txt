@@ -1,0 +1,14 @@
+# Core framework
+Django==4.2.27
+
+# Database (for production PostgreSQL support - optional)
+# psycopg2-binary==2.9.9
+
+# Web server for production deployment (optional)
+# gunicorn==21.2.0
+
+# Static file serving (optional, for production)
+# whitenoise==6.6.0
+
+# Environment variable management (optional)
+# python-decouple==3.8

@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,12 +21,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-sf0#tukz8)r=r^-asje_m)(&bhsb0d!@c=0pa-#s_)&3!o30yg'
+# Get SECRET_KEY from environment variable, fallback to development key
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-sf0#tukz8)r=r^-asje_m)(&bhsb0d!@c=0pa-#s_)&3!o30yg')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Get DEBUG from environment variable, default to True for development
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+# Get ALLOWED_HOSTS from environment variable, default to localhost for development
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS if host.strip()]
 
 
 # Application definition
@@ -73,6 +78,12 @@ WSGI_APPLICATION = 'investment_site.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+# 
+# Default configuration uses SQLite for development
+# For production, consider using PostgreSQL:
+# 1. Uncomment psycopg2-binary in requirements.txt
+# 2. Set DB_ENGINE, DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT in .env
+# 3. Update DATABASES configuration below
 
 DATABASES = {
     'default': {
@@ -104,9 +115,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# Get language and timezone from environment, or use defaults
+LANGUAGE_CODE = os.environ.get('LANGUAGE_CODE', 'en-us')
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = os.environ.get('TIME_ZONE', 'UTC')
 
 USE_I18N = True
 
